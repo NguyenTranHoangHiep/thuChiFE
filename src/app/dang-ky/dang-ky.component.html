@@ -1,0 +1,86 @@
+<body style="background-color: royalblue; margin: 0; height: 100%;">
+  <div class="container d-flex justify-content-center align-items-center min-vh-100" style="background-color: royalblue;">
+    <div class="card p-4 shadow fade-in-up" style="max-width: 400px; width: 100%;">
+      <h2 class="text-center mb-4">Đăng ký</h2>
+      <form (submit)="dangKy(); $event.preventDefault()">
+        <div class="mb-3">
+          <label for="tenDangNhap" class="form-label">Tên đăng nhập</label>
+          <input
+            id="tenDangNhap"
+            type="text"
+            class="form-control"
+            [(ngModel)]="tenDangNhap"
+            name="tenDangNhap"
+            required
+            minlength="5"
+          />
+          <div *ngIf="tenDangNhap && tenDangNhap.length < 5" class="form-text text-danger">
+            Tên đăng nhập phải có ít nhất 5 ký tự
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="matKhau" class="form-label">Mật khẩu</label>
+          <input
+            id="matKhau"
+            type="password"
+            class="form-control"
+            [(ngModel)]="matKhau"
+            name="matKhau"
+            required
+            minlength="5"
+          />
+          <div *ngIf="matKhau && matKhau.length < 5" class="form-text text-danger">
+            Mật khẩu phải có ít nhất 5 ký tự
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="nhapLaiMatKhau" class="form-label">Nhập lại mật khẩu</label>
+          <input
+            id="nhapLaiMatKhau"
+            type="password"
+            class="form-control"
+            [(ngModel)]="nhapLaiMatKhau"
+            name="nhapLaiMatKhau"
+            required
+          />
+          <div *ngIf="matKhau !== nhapLaiMatKhau && nhapLaiMatKhau" class="form-text text-danger">
+            Mật khẩu không khớp
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            type="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-100"
+          [disabled]="!tenDangNhap || !matKhau || matKhau !== nhapLaiMatKhau"
+        >
+          Đăng ký
+        </button>
+      </form>
+
+      <p
+        class="mt-3 text-center"
+        [ngClass]="{ 'text-danger': message.includes('Lỗi'), 'text-success': !message.includes('Lỗi') }"
+      >
+        {{ message }}
+      </p>
+      <div class="mt-3 text-center">
+        <a routerLink="/dangNhap" class="btn btn-primary btn-sm">
+          ← Quay lại đăng nhập
+        </a>
+      </div>
+    </div>
+  </div>
+</body>

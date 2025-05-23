@@ -1,0 +1,151 @@
+<div class="container-fluid mt-4">
+  <h3 class="text-center">Quản lý danh mục</h3>
+  <p></p>
+  <!-- Nút Thêm danh mục -->
+  <button class="btn btn-success mb-3" (click)="openAddModal()">Thêm</button>
+  <!-- Filter ngoài bảng -->
+  <div class="row mb-1">
+    <div class="col-md-6">
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Tìm tên danh mục"
+        [(ngModel)]="filterTenDanhMuc"
+      />
+    </div>
+    <div class="col-md-5">
+      <select
+        class="form-select"
+        [(ngModel)]="filterLoai"
+      >
+        <option value="all">Tất cả loại</option>
+        <option value="thu">Thu</option>
+        <option value="chi">Chi</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Mã</th>
+          <th>Tên danh mục</th>
+          <th>Loại</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let dm of filteredDanhMucList">
+          <td>{{ dm.maDanhMuc }}</td>
+          <td>{{ dm.tenDanhMuc }}</td>
+          <td>{{ dm.loai === 'thu' ? 'Thu' : 'Chi' }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger me-2">Xóa</button>
+            <button class="btn btn-sm btn-warning me-2" (click)="openEditModal(dm)">Sửa</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- Phân trang ở giữa bảng -->
+<nav *ngIf="totalPages > 1">
+  <ul class="pagination justify-content-center mt-3">
+    <!-- Trang trước -->
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="page = page - 1" [disabled]="page === 1">
+        <
+      </button>
+    </li>
+
+    <!-- Các số trang -->
+    <li
+      class="page-item"
+      *ngFor="let p of [].constructor(totalPages); let i = index"
+      [class.active]="page === i + 1"
+    >
+      <button class="page-link" (click)="page = i + 1">
+        {{ i + 1 }}
+      </button>
+    </li>
+
+    <!-- Trang sau -->
+    <li class="page-item" [class.disabled]="page === totalPages">
+      <button class="page-link" (click)="page = page + 1" [disabled]="page === totalPages">
+        >
+      </button>
+    </li>
+  </ul>
+</nav>
+
+  </div>
+
+  <!-- Modal thêm danh mục -->
+  <div *ngIf="showAddModal" class="modal-overlay">
+    <div class="modal-content">
+      <h5>Thêm danh mục mới</h5>
+      <form (ngSubmit)="addDanhMuc()">
+        <div class="mb-2">
+          <label for="tenDanhMuc">Tên danh mục</label>
+          <input
+            [(ngModel)]="newDanhMuc.tenDanhMuc"
+            name="tenDanhMuc"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-2">
+          <label for="loai">Loại</label>
+          <select
+            [(ngModel)]="newDanhMuc.loai"
+            name="loai"
+            class="form-select"
+            required
+          >
+            <option value="thu">Thu</option>
+            <option value="chi">Chi</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success me-2">Thêm</button>
+        <button type="button" class="btn btn-secondary" (click)="closeAddModal()">
+          Hủy
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal sửa danh mục -->
+  <div *ngIf="showEditModal && editingDanhMuc" class="modal-overlay">
+    <div class="modal-content">
+      <h5>Chỉnh sửa danh mục</h5>
+      <form (ngSubmit)="updateDanhMuc()">
+        <div class="mb-2">
+          <label for="tenDanhMucEdit">Tên danh mục</label>
+          <input
+            [(ngModel)]="editingDanhMuc.tenDanhMuc"
+            name="tenDanhMucEdit"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-2">
+          <label for="loaiEdit">Loại</label>
+          <select
+            [(ngModel)]="editingDanhMuc.loai"
+            name="loaiEdit"
+            class="form-select"
+            required
+          >
+            <option value="thu">Thu</option>
+            <option value="chi">Chi</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success me-2">Lưu</button>
+        <button type="button" class="btn btn-secondary" (click)="closeEditModal()">
+          Hủy
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+

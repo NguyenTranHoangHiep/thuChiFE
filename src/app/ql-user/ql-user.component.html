@@ -1,0 +1,56 @@
+<div class="container-fluid mt-4">
+  <h3 class="text-center">Quản lý người dùng</h3>
+  <div class="table-responsive">
+    <table class="table table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Mã</th>
+          <th>Tên đăng nhập</th>
+          <th>Email</th>
+          <th>Ngày tạo</th>
+          <th>Vai trò</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.maNguoiDung }}</td>
+          <td>{{ user.tenDangNhap }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.ngayTao | date: 'short' }}</td>
+          <td>{{ getRoleLabel(user.role) }}</td>
+          <td>
+            <button class="btn btn-sm btn-danger me-2" (click)="deleteUser(user)">Xóa</button>
+            <button class="btn btn-sm btn-warning me-2" (click)="editUser(user)">Sửa</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Popup modal đặt ngoài bảng -->
+  <div *ngIf="editingUser" class="modal-overlay">
+    <div class="modal-content">
+      <h5>Chỉnh sửa người dùng</h5>
+      <form (ngSubmit)="saveUser()">
+        <div class="mb-2">
+          <label>Tên đăng nhập</label>
+          <input [(ngModel)]="editingUser.tenDangNhap" name="tenDangNhap" class="form-control" required />
+        </div>
+        <div class="mb-2">
+          <label>Email</label>
+          <input [(ngModel)]="editingUser.email" name="email" class="form-control" />
+        </div>
+        <div class="mb-2">
+          <label>Vai trò</label>
+          <select [(ngModel)]="editingUser.role" name="role" class="form-select" required>
+            <option [value]="0">Admin</option>
+            <option [value]="1">User</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-success me-2">Lưu</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Hủy</button>
+      </form>
+    </div>
+  </div>
+</div>
