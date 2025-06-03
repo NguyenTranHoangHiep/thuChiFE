@@ -23,13 +23,17 @@ export class DangNhapComponent {
     matKhau: this.matKhau
   }).subscribe({
     next: (res) => {
+      console.log('User login response:', res);
       // Lưu trạng thái đăng nhập
       localStorage.setItem('user', JSON.stringify(res.user));
 
       this.message = 'Đăng nhập thành công';
       
-      // Điều hướng sang trang chủ
-      this.router.navigate(['/trangChu']);
+      if (res.user.role === 1) {
+        this.router.navigate(['/trangChuUsers/soThuChi']);
+      } else {
+        this.router.navigate(['/trangChu']);
+      }
     },
     error: (err) => {
       this.message = 'Tên đăng nhập hoặc mật khẩu sai';

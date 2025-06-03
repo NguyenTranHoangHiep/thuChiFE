@@ -1,0 +1,87 @@
+<div class="d-flex flex-nowrap justify-content-center gap-3" style="overflow-x: auto;">
+  <div class="card p-3 shadow-sm bg-white rounded" style="width: 380px;">
+    <p class="text-muted mb-1">TỔNG THU</p>
+    <div class="d-flex align-items-center">
+      <h3 class="text-success me-2">{{ animatedThu | number:'1.0-0' }}₫</h3>
+      <img src="assets/image/money.png" alt="Thu" style="width: 30px; height: 30px; margin-left: auto;" />
+    </div>
+  </div>
+
+  <div class="card p-3 shadow-sm bg-white rounded" style="width: 380px;">
+    <p class="text-muted mb-1">TỔNG CHI</p>
+    <div class="d-flex align-items-center">
+      <h3 class="text-danger me-2">{{ animatedChi | number:'1.0-0' }}₫</h3>
+      <img src="assets/image/spend.png" alt="Chi" style="width: 30px; height: 30px; margin-left: auto;" />
+    </div>
+  </div>
+
+  <div class="card p-3 shadow-sm bg-white rounded" style="width: 380px;">
+    <p class="text-muted mb-1">TIỀN TIẾT KIỆM</p>
+    <div class="d-flex align-items-center">
+      <h3 style="color: #ffca28;" class="me-2">{{ animatedTietKiem | number:'1.0-0' }}₫</h3>
+      <img
+        [src]="tienTietKiem >= 1 ? 'assets/image/saving.png' : 'assets/image/noSaving.png'"
+        alt="Tiết kiệm"
+        style="width: 30px; height: 30px; margin-left: auto;"
+      />
+    </div>
+  </div>
+</div>
+
+  <!-- PHẦN BIỂU ĐỒ THU VÀ CHI -->
+  <div class="row mt-4 gx-4">
+    <!-- Biểu đồ thu -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm bg-white rounded d-flex flex-column h-100">
+        <h5 class="mb-3 text-center fw-semibold">Biểu đồ phần trăm thu theo danh mục thu</h5>
+        <div style="flex-grow: 1; min-height: 0;">
+          <canvas baseChart
+            [data]="pieChartData"
+            [type]="'pie'"
+            [options]="pieChartOptions"
+            [legend]="true"
+            style="height: 100%; width: 100%; display: block;">
+          </canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Biểu đồ chi -->
+    <div class="col-md-6">
+      <div class="card p-3 shadow-sm bg-white rounded d-flex flex-column h-100">
+        <h5 class="mb-3 text-center fw-semibold">Biểu đồ phần trăm chi theo danh mục chi</h5>
+        <div style="flex-grow: 1; min-height: 0;">
+          <canvas baseChart
+            [data]="doughnutChartData"
+            [type]="'doughnut'"
+            [options]="doughnutChartOptions"
+            [legend]="true"
+            style="height: 100%; width: 100%; display: block;">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ <!-- PHẦN BIỂU ĐỒ TỔNG THU - CHI THEO THÁNG -->
+<div class="row mt-4">
+  <div class="col-12">
+    <div class="card p-3 shadow-sm bg-white rounded" style="height: 460px;">
+      <h5 class="mb-3 text-center fw-semibold">Biểu đồ thống kê theo từng tháng trong năm</h5>
+
+      <!-- Bộ lọc năm -->
+      <div class="d-flex justify-content-start align-items-center mb-2">
+        <label for="year" class="me-2 fw-semibold">Chọn năm:</label>
+        <select id="year" class="form-select w-auto" [(ngModel)]="selectedYear" (change)="onYearChange()">
+          <option *ngFor="let year of availableYears" [value]="year">{{ year }}</option>
+        </select>
+      </div>
+
+      <div style="flex-grow: 1; min-height: 0; height: 100%;">
+        <canvas #monthlyChartCanvas style="width: 100%; height: 100%;"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+

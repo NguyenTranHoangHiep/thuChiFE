@@ -69,7 +69,7 @@ export class DangKyComponent {
       email: this.email || undefined
     }).subscribe({
       next: (res) => {
-        this.message = 'Đăng ký thành công, mã người dùng: ' + res.maNguoiDung;
+        this.message = 'Đăng ký thành công';
         // Xóa form sau khi đăng ký
         this.tenDangNhap = this.matKhau = this.nhapLaiMatKhau = this.email = '';
       },

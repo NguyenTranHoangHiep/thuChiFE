@@ -27,4 +27,7 @@ export class DanhMucService {
    updateDanhMuc(maDanhMuc: number, danhMuc: Omit<DanhMuc, 'maDanhMuc'>): Observable<any> {
     return this.http.put(`${this.apiUrl}/${maDanhMuc}`, danhMuc);
   }
+  getDanhMucTheoNguoiDung(maNguoiDung: number): Observable<DanhMuc[]> {
+    return this.http.get<DanhMuc[]>(`${this.apiUrl}/nguoidung/${maNguoiDung}`);
+  }
 }

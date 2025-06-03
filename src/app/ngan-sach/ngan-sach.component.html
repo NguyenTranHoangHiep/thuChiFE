@@ -1,0 +1,203 @@
+<div class="container mt-4">
+  <h3 class="text-center">Danh sách ngân sách</h3>
+
+  <div class="d-flex mb-3">
+    <button class="btn btn-success me-2 px-3"  (click)="moModalThem()">Thêm</button>
+    <button class="btn btn-primary" 
+        style="background-color: #330066; border: none; color: white;" 
+        (click)="xuatExcel()">
+        Xuất Excel
+    </button>
+  </div>
+  <!-- loc theo loai -->
+  <div class="d-flex align-items-center gap-3 mb-2">
+    
+  <select [(ngModel)]="selectedDanhMuc" class="form-select" style="width: 20%;">
+  <option [ngValue]="null">Tất cả danh mục</option>
+  <option *ngFor="let dm of danhMucList" [ngValue]="dm.tenDanhMuc">{{ dm.tenDanhMuc }}</option>
+</select>
+
+  <select [(ngModel)]="selectedLoai" id="loaiFilter" class="form-select" style="width: 13%;">
+    <option value="tatca">Tất cả loại</option>
+    <option value="thu">Thu</option>
+    <option value="chi">Chi</option>
+  </select>
+
+  <select [(ngModel)]="selectedThang" class="form-select" style="width: 15%;">
+    <option [ngValue]="null">Tất cả tháng</option>
+    <option *ngFor="let thang of [1,2,3,4,5,6,7,8,9,10,11,12]" [ngValue]="thang">{{ thang }}</option>
+  </select>
+
+  <select [(ngModel)]="selectedNam" class="form-select" style="width: 13%;">
+    <option [ngValue]="null">Tất cả năm</option>
+    <option *ngFor="let nam of getDanhSachNam()" [ngValue]="nam">{{ nam }}</option>
+  </select>
+</div>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped mt-3">
+      <thead class="table-dark">
+        <tr>
+          <th>Tên danh mục</th>
+          <th>Loại</th>
+          <th>Giới hạn tiền</th>
+          <th>Số tiền đã thực hiện</th>
+          <th>Số tiền còn lại</th>
+          <th>Trạng thái</th>
+          <th>Ngày tạo</th>
+          <th>Tháng</th>
+          <th>Năm</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedNganSachList">
+          <td>{{ item.tenDanhMuc }}</td>
+          <td>{{ item.loai === 'thu' ? 'Thu' : 'Chi' }}</td>
+          <td>{{ item.gioiHanTien | number:'1.0-0' }}</td>
+          <td>{{ item.soTienDaThucHien | number:'1.0-0' }}</td>
+          <td>{{ (item.gioiHanTien - item.soTienDaThucHien) | number:'1.0-0' }}</td>
+          <td>
+          <span
+            class="badge px-2 py-1 fs-6"
+            [ngClass]="{
+              'bg-primary text-white': (item.loai === 'thu' && (+item.soTienDaThucHien < +item.gioiHanTien)),
+              'bg-success text-white': (item.loai !== 'thu' && (+item.soTienDaThucHien <= +item.gioiHanTien)),
+              'bg-warning text-white': item.loai === 'thu' && (+item.soTienDaThucHien >= +item.gioiHanTien),
+              'bg-danger text-white': item.loai !== 'thu' && (+item.soTienDaThucHien > +item.gioiHanTien)
+            }"
+          >
+            {{ getTrangThai(item) }}
+          </span>
+          </td>
+          <td>{{ item.ngayTao ? (item.ngayTao | date:'dd/MM/yyyy') : '' }}</td>
+          <td>{{ item.thang }}</td>
+          <td>{{ item.nam }}</td>
+          <td>
+            <div class="d-flex align-items-center">
+              <button class="btn btn-sm btn-danger me-2" (click)="xoaNganSach(item.maNganSach)">Xóa</button>
+              <button class="btn btn-sm btn-warning" (click)="moModalSua(item)">Sửa</button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Thanh phân trang -->
+  <nav *ngIf="totalPages > 1">
+    <ul class="pagination justify-content-center mt-3">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">&lt;</button>
+      </li>
+
+      <li
+        class="page-item"
+        *ngFor="let p of [].constructor(totalPages); let i = index"
+        [class.active]="currentPage === i + 1"
+      >
+        <button class="page-link" (click)="currentPage = i + 1">
+          {{ i + 1 }}
+        </button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">&gt;</button>
+      </li>
+    </ul>
+  </nav>
+</div>
+<!-- Modal chỉnh sửa ngân sách -->
+<div *ngIf="isEditModalOpen && editNganSach" class="modal-overlay" 
+     style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1050;">
+  <div class="modal-content bg-white p-4 rounded shadow" style="width: 400px; max-width: 90%;">
+    <h5 class="mb-3">Chỉnh sửa ngân sách</h5>
+
+    <form (ngSubmit)="capNhatNganSach()" #editNganSachForm="ngForm">
+
+      <div class="mb-3">
+        <label for="editMaDanhMuc" class="form-label">Tên danh mục:</label>
+        <select id="editMaDanhMuc" class="form-select" [(ngModel)]="editNganSach.maDanhMuc" name="editMaDanhMuc" required>
+          <option value="" disabled>-- Chọn danh mục --</option>
+          <option *ngFor="let dm of danhMucList" [value]="dm.maDanhMuc">
+            {{ dm.loai === 'thu' ? '💰 ' : '🛒 ' }}{{ dm.tenDanhMuc }}
+          </option>
+        </select>
+
+      </div>
+
+      <div class="mb-3">
+        <label for="editGioiHanTien" class="form-label">Giới hạn tiền:</label>
+        <input id="editGioiHanTien" type="number" class="form-control" [(ngModel)]="editNganSach.gioiHanTien" name="editGioiHanTien" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="editThang" class="form-label">Tháng:</label>
+        <input
+          id="editThang"
+          type="number"
+          min="1"
+          max="12"
+          class="form-control"
+          [(ngModel)]="editNganSach.thang"
+          name="editThang"
+          [required]="false"
+        />
+    </div>
+
+      <div class="mb-3">
+        <label for="editNam" class="form-label">Năm:</label>
+        <input id="editNam" type="number" min="1900" class="form-control" [(ngModel)]="editNganSach.nam" name="editNam" required />
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-primary" [disabled]="editNganSachForm.invalid">Lưu</button>
+        <button type="button" class="btn btn-secondary ms-2" (click)="isEditModalOpen = false">Hủy</button>
+      </div>
+
+    </form>
+  </div>
+</div>
+<!-- Modal Thêm ngân sách -->
+<div *ngIf="isAddModalOpen" class="modal-overlay" 
+     style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1050;">
+  <div class="modal-content bg-white p-4 rounded shadow" style="width: 400px; max-width: 90%;">
+    <h5 class="mb-3">Thêm ngân sách</h5>
+
+    <form (ngSubmit)="taoNganSach()" #addNganSachForm="ngForm">
+
+      <div class="mb-3">
+        <label for="addMaDanhMuc" class="form-label">Tên danh mục:</label>
+        <select id="addMaDanhMuc" class="form-select" [(ngModel)]="newNganSach.maDanhMuc" name="addMaDanhMuc" required>
+          <option value="" disabled>-- Chọn danh mục --</option>
+          <option *ngFor="let dm of danhMucList" [value]="dm.maDanhMuc">
+            {{ dm.loai === 'thu' ? '💰 ' : '🛒 ' }}{{ dm.tenDanhMuc }}
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="addGioiHanTien" class="form-label">Giới hạn tiền:</label>
+        <input id="addGioiHanTien" type="number" class="form-control" [(ngModel)]="newNganSach.gioiHanTien" name="addGioiHanTien" required />
+      </div>
+
+      <div class="mb-3">
+        <label for="addThang" class="form-label">Tháng (có thể để trống):</label>
+        <input id="addThang" type="number" min="1" max="12" class="form-control" [(ngModel)]="newNganSach.thang" name="addThang" />
+      </div>
+
+      <div class="mb-3">
+        <label for="addNam" class="form-label">Năm:</label>
+        <input id="addNam" type="number" min="1900" class="form-control" [(ngModel)]="newNganSach.nam" name="addNam" required />
+      </div>
+
+      <div class="d-flex justify-content-end">
+        <button type="submit" class="btn btn-success" [disabled]="addNganSachForm.invalid">Thêm</button>
+        <button type="button" class="btn btn-secondary ms-2" (click)="isAddModalOpen = false">Hủy</button>
+      </div>
+
+    </form>
+  </div>
+</div>

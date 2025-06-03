@@ -1,5 +1,23 @@
 <div class="container-fluid mt-4">
   <h3 class="text-center">Quản lý người dùng</h3>
+  <div class="row mb-2 align-items-end">
+  <div class="col-md-3">
+    <input type="text" [(ngModel)]="keyword" (ngModelChange)="filterUsers()" class="form-control" placeholder="Tìm tên đăng nhập hoặc email" />
+  </div>
+  <div class="col-md-2">
+    <select [(ngModel)]="selectedRole" (change)="filterUsers()" class="form-select">
+      <option value="">Tất cả</option>
+      <option value="0">Admin</option>
+      <option value="1">User</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <input type="date" [(ngModel)]="startDate" class="form-control" />
+  </div>
+  <div class="col-md-3">
+    <input type="date" [(ngModel)]="endDate" class="form-control" />
+  </div>
+</div>
   <div class="table-responsive">
     <table class="table table-striped mt-3">
       <thead class="table-dark">
@@ -13,11 +31,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of users">
+        <tr *ngFor="let user of filteredUsers">
           <td>{{ user.maNguoiDung }}</td>
           <td>{{ user.tenDangNhap }}</td>
           <td>{{ user.email }}</td>
-          <td>{{ user.ngayTao | date: 'short' }}</td>
+          <td>{{ user.ngayTao | date: 'dd/MM/yyyy, HH:mm' }}</td>
           <td>{{ getRoleLabel(user.role) }}</td>
           <td>
             <button class="btn btn-sm btn-danger me-2" (click)="deleteUser(user)">Xóa</button>
