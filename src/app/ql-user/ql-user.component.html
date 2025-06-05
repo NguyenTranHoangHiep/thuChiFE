@@ -1,23 +1,49 @@
 <div class="container-fluid mt-4">
   <h3 class="text-center">Quản lý người dùng</h3>
+
+  <!-- Bộ lọc tìm kiếm -->
   <div class="row mb-2 align-items-end">
-  <div class="col-md-3">
-    <input type="text" [(ngModel)]="keyword" (ngModelChange)="filterUsers()" class="form-control" placeholder="Tìm tên đăng nhập hoặc email" />
+    <div class="col-md-3">
+      <input
+        type="text"
+        [(ngModel)]="keyword"
+        (ngModelChange)="filterUsers()"
+        class="form-control"
+        placeholder="Tìm tên đăng nhập hoặc email"
+      />
+    </div>
+    <div class="col-md-2">
+      <select
+        [(ngModel)]="selectedRole"
+        (change)="filterUsers()"
+        class="form-select"
+      >
+        <option value="">Tất cả</option>
+        <option value="0">Admin</option>
+        <option value="1">User</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <input
+  type="date"
+  [(ngModel)]="startDate"
+  (ngModelChange)="filterUsers()"
+  class="form-control"
+  placeholder="Từ ngày"
+/>
+    </div>
+    <div class="col-md-3">
+      <input
+  type="date"
+  [(ngModel)]="endDate"
+  (ngModelChange)="filterUsers()"
+  class="form-control"
+  placeholder="Đến ngày"
+/>
+    </div>
   </div>
-  <div class="col-md-2">
-    <select [(ngModel)]="selectedRole" (change)="filterUsers()" class="form-select">
-      <option value="">Tất cả</option>
-      <option value="0">Admin</option>
-      <option value="1">User</option>
-    </select>
-  </div>
-  <div class="col-md-3">
-    <input type="date" [(ngModel)]="startDate" class="form-control" />
-  </div>
-  <div class="col-md-3">
-    <input type="date" [(ngModel)]="endDate" class="form-control" />
-  </div>
-</div>
+
+  <!-- Bảng người dùng -->
   <div class="table-responsive">
     <table class="table table-striped mt-3">
       <thead class="table-dark">
@@ -31,43 +57,100 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let user of filteredUsers">
+        <tr *ngFor="let user of paginatedUsers">
           <td>{{ user.maNguoiDung }}</td>
           <td>{{ user.tenDangNhap }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.ngayTao | date: 'dd/MM/yyyy, HH:mm' }}</td>
           <td>{{ getRoleLabel(user.role) }}</td>
           <td>
-            <button class="btn btn-sm btn-danger me-2" (click)="deleteUser(user)">Xóa</button>
-            <button class="btn btn-sm btn-warning me-2" (click)="editUser(user)">Sửa</button>
+            <button
+              class="btn btn-sm btn-danger me-2"
+              (click)="deleteUser(user)"
+            >
+              Xóa
+            </button>
+            <button
+              class="btn btn-sm btn-warning me-2"
+              (click)="editUser(user)"
+            >
+              Sửa
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Popup modal đặt ngoài bảng -->
+  <!-- Phân trang giữa bảng -->
+<nav *ngIf="totalPages > 1">
+  <ul class="pagination justify-content-center mt-3">
+    <!-- Trang trước -->
+    <li class="page-item" [class.disabled]="page === 1">
+      <button class="page-link" (click)="goToPage(page - 1)" [disabled]="page === 1">
+        &lt;
+      </button>
+    </li>
+
+    <!-- Các số trang -->
+    <li
+      class="page-item"
+      *ngFor="let p of [].constructor(totalPages); let i = index"
+      [class.active]="page === i + 1"
+    >
+      <button class="page-link" (click)="goToPage(i + 1)">
+        {{ i + 1 }}
+      </button>
+    </li>
+
+    <!-- Trang sau -->
+    <li class="page-item" [class.disabled]="page === totalPages">
+      <button class="page-link" (click)="goToPage(page + 1)" [disabled]="page === totalPages">
+        &gt;
+      </button>
+    </li>
+  </ul>
+</nav>
+
+
+  <!-- Modal chỉnh sửa người dùng -->
   <div *ngIf="editingUser" class="modal-overlay">
     <div class="modal-content">
       <h5>Chỉnh sửa người dùng</h5>
       <form (ngSubmit)="saveUser()">
         <div class="mb-2">
           <label>Tên đăng nhập</label>
-          <input [(ngModel)]="editingUser.tenDangNhap" name="tenDangNhap" class="form-control" required />
+          <input
+            [(ngModel)]="editingUser.tenDangNhap"
+            name="tenDangNhap"
+            class="form-control"
+            required
+          />
         </div>
         <div class="mb-2">
           <label>Email</label>
-          <input [(ngModel)]="editingUser.email" name="email" class="form-control" />
+          <input
+            [(ngModel)]="editingUser.email"
+            name="email"
+            class="form-control"
+          />
         </div>
         <div class="mb-2">
           <label>Vai trò</label>
-          <select [(ngModel)]="editingUser.role" name="role" class="form-select" required>
+          <select
+            [(ngModel)]="editingUser.role"
+            name="role"
+            class="form-select"
+            required
+          >
             <option [value]="0">Admin</option>
             <option [value]="1">User</option>
           </select>
         </div>
         <button type="submit" class="btn btn-success me-2">Lưu</button>
-        <button type="button" class="btn btn-secondary" (click)="cancelEdit()">Hủy</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+          Hủy
+        </button>
       </form>
     </div>
   </div>

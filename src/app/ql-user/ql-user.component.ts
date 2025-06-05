@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService, User } from '../service/users.service'; 
+import { UserService, User } from '../service/users.service';
 
 @Component({
   selector: 'app-ql-user',
@@ -12,9 +12,15 @@ export class QlUserComponent implements OnInit {
 
   startDate: string = '';
   endDate: string = '';
-
   keyword: string = '';
   selectedRole: string = '';
+
+  // Pagination
+  page: number = 1;
+  pageSize: number = 5;
+  totalPages: number = 1;
+  paginatedUsers: User[] = [];
+
   constructor(private userService: UserService) {}
 
   ngOnInit(): void {
@@ -25,36 +31,50 @@ export class QlUserComponent implements OnInit {
     this.userService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
-        this.filteredUsers = data; // hiển thị ban đầu
+        this.filterUsers(); // Áp dụng lọc và phân trang
       },
-      error: (err) =>
-        console.error('Lỗi khi lấy danh sách người dùng:', err)
+      error: (err) => {
+        console.error('Lỗi khi lấy danh sách người dùng:', err);
+      }
     });
   }
 
   filterUsers(): void {
-  const from = this.startDate ? new Date(this.startDate + 'T00:00:00') : null;
-  const to = this.endDate ? new Date(this.endDate + 'T23:59:59') : null;
-  const keywordLower = this.keyword.toLowerCase();
+    const from = this.startDate ? new Date(this.startDate + 'T00:00:00') : null;
+    const to = this.endDate ? new Date(this.endDate + 'T23:59:59') : null;
+    const keywordLower = this.keyword.toLowerCase();
 
-  this.filteredUsers = this.users.filter(user => {
-    const createdDate = new Date(user.ngayTao);
+    this.filteredUsers = this.users.filter(user => {
+      const createdDate = new Date(user.ngayTao);
 
-    // Lọc theo ngày
-    if (from && createdDate < from) return false;
-    if (to && createdDate > to) return false;
+      if (from && createdDate < from) return false;
+      if (to && createdDate > to) return false;
 
-    // Lọc theo từ khóa
-    const matchKeyword = user.tenDangNhap.toLowerCase().includes(keywordLower) ||
-                         user.email.toLowerCase().includes(keywordLower);
-    if (this.keyword && !matchKeyword) return false;
+      const matchKeyword = user.tenDangNhap.toLowerCase().includes(keywordLower) ||
+                           user.email.toLowerCase().includes(keywordLower);
+      if (this.keyword && !matchKeyword) return false;
 
-    // Lọc theo vai trò
-    if (this.selectedRole !== '' && String(user.role) !== this.selectedRole) return false;
+      if (this.selectedRole !== '' && String(user.role) !== this.selectedRole) return false;
 
-    return true;
-  });
-}
+      return true;
+    });
+
+    this.page = 1; // Reset về trang đầu tiên sau khi lọc
+    this.updatePaginatedUsers();
+  }
+
+  updatePaginatedUsers(): void {
+    const startIndex = (this.page - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.totalPages = Math.ceil(this.filteredUsers.length / this.pageSize);
+    this.paginatedUsers = this.filteredUsers.slice(startIndex, endIndex);
+  }
+
+  goToPage(pageNumber: number): void {
+    if (pageNumber < 1 || pageNumber > this.totalPages) return;
+    this.page = pageNumber;
+    this.updatePaginatedUsers();
+  }
 
   getRoleLabel(role: number): string {
     return role === 0 ? 'Admin' : 'User';
@@ -97,4 +117,3 @@ export class QlUserComponent implements OnInit {
     });
   }
 }
-

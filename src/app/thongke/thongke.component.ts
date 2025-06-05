@@ -307,18 +307,26 @@ export class ThongkeComponent implements OnInit {
   }
 
   // Hiệu ứng đếm số tiền
-  animateSoTien(value: number, field: 'tongThuAll' | 'tongChiAll' | 'tienTietKiemAll'): void {
-    let current = 0;
-    const step = value / 100;
-    const interval = setInterval(() => {
-      current += step;
-      if (current >= value) {
-        this[field] = value;
-        clearInterval(interval);
-      } else {
-        this[field] = current;
-      }
-    }, 10);
+  animateSoTien(value: number, field: 'tongThuAll' | 'tongChiAll' | 'tienTietKiemAll') {
+  if (value === null || value === undefined || isNaN(value)) {
+    this[field] = 0;
+    return;
   }
 
+  let current = 0;
+  const duration = 1000; // 1 giây
+  const steps = 100;
+  const step = value / steps;
+  const intervalTime = duration / steps;
+
+  const interval = setInterval(() => {
+    current += step;
+    if ((value >= 0 && current >= value) || (value < 0 && current <= value)) {
+      this[field] = value;
+      clearInterval(interval);
+    } else {
+      this[field] = Math.round(current);
+    }
+  }, intervalTime);
+}
 }
